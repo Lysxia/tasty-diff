@@ -46,6 +46,19 @@ test-suite floating-point
   ghc-options:          -Wall
   default-language:     Haskell2010
 
+test-suite test-diff
+  type:                 exitcode-stdio-1.0
+  main-is:              test-diff.hs
+  hs-source-dirs:       test
+  build-depends:
+    Diff,
+    QuickCheck,
+    tasty,
+    tasty-diff,
+    tasty-quickcheck,
+    base
+  ghc-options:          -Wall
+  default-language:     Haskell2010
 
 test-suite simple-test
   type:                 exitcode-stdio-1.0
