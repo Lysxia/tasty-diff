@@ -5,8 +5,13 @@ import Test.Tasty
 
 import Test.Tasty.Diff
 
+import SelfTest
+
 main :: IO ()
-main = mainWithHook $ \hook -> defaultMain $ testGroup "Test"
+main = selfTest "floating-point" "golden/floating-point-meta.golden" main'
+
+main' :: IO ()
+main' = mainWithHook $ \hook -> defaultMain $ testGroup "Test"
   [ goldenTestLines hook "floor"   "golden/floating-point.golden" (test floor)
   , goldenTestLines hook "ceiling" "golden/floating-point.golden" (test ceiling)
   ]

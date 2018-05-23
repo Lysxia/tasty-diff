@@ -35,9 +35,12 @@ test-suite floating-point
   type:                 exitcode-stdio-1.0
   main-is:              floating-point.hs
   hs-source-dirs:       test
+  other-modules:
+    SelfTest
   build-depends:
     tasty,
     tasty-diff,
+    typed-process,
     text,
     base
   ghc-options:          -Wall
