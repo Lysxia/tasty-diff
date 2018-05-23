@@ -218,6 +218,12 @@ data SneakyOptions = SneakyOptions
     -- 'Test.Tasty.Ingredients.ConsoleReporter.useColor'.
   }
 
+defaultSneakyOptions :: SneakyOptions
+defaultSneakyOptions = SneakyOptions
+  { quiet = False
+  , colors = id
+  }
+
 -- | An IO wrapper for colored terminal output.
 --
 -- > TermIO a = SneakyOptions -> IO a
@@ -317,3 +323,9 @@ renderGroupedDiffString
   :: CtxLen -> ReferenceName -> OutputName -> [Diff [Text]] -> String
 renderGroupedDiffString ctxLen rname oname =
   unConstString . renderGroupedDiff ctxLen rname oname
+
+-- | Print a diff with some context in the terminal.
+printGroupedDiff
+  :: CtxLen -> ReferenceName -> OutputName -> [Diff [Text]] -> IO ()
+printGroupedDiff ctxLen rname oname =
+  runTerm defaultSneakyOptions . renderGroupedDiff ctxLen rname oname
