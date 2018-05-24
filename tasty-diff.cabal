@@ -50,6 +50,8 @@ test-suite test-diff
   type:                 exitcode-stdio-1.0
   main-is:              test-diff.hs
   hs-source-dirs:       test
+  other-modules:
+    GenDiff
   build-depends:
     Diff,
     QuickCheck,

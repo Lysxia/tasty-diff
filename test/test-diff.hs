@@ -1,11 +1,5 @@
-{-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE ViewPatterns #-}
 
-{-# OPTIONS_GHC -Wno-orphans #-}
-
-import Data.Bifunctor (bimap)
-import Data.Coerce
 import Data.Algorithm.Diff
   ( Diff(..), getGroupedDiff )
 
@@ -13,6 +7,8 @@ import Test.Tasty
 import Test.Tasty.QuickCheck
 
 import Test.Tasty.Diff.Internal.Diff
+
+import GenDiff
 
 type X = Int
 
@@ -82,42 +78,8 @@ goodContextDiff' gs = case gs of
   (Both _ _ : g@(_ : _)) : _ | all isBoth g -> False  -- Trivial diffs have length 1
   g : gs' -> goodGroupedDiff g && goodContextDiff' gs'
 
-extractDiff :: [Diff [t]] -> ([t], [t])
-extractDiff = bimap concat concat . unzip . fmap fromDiff where
-  fromDiff (Both a b) = (a, b)
-  fromDiff (First  a) = (a, [])
-  fromDiff (Second b) = ([], b)
-
 correctDiff :: (Eq t, Show t) => [t] -> [t] -> [Diff [t]] -> Property
 correctDiff xs ys ds = extractDiff ds === (xs, ys)
 
 interestingDiff :: [Diff [t]] -> Bool
 interestingDiff ds = or [ length a > 1 | Both a _ <- ds ]
-
-instance Arbitrary a => Arbitrary (Diff a) where
-  arbitrary = elements [First, Second, both] <*> arbitrary
-  shrink (First as) = both as : fmap First (shrink as)
-  shrink (Second as) = both as : fmap Second (shrink as)
-  shrink (Both as _) = fmap both (shrink as)
-
-strangeList :: Gen a -> Gen [a]
-strangeList g = sized $ \n -> do
-  x <- choose (1, sqrt (fromIntegral n + 4) :: Double)
-  let i = floor (x * x)
-  vectorOf i g
-
-newtype StrangeList a = StrangeList [a]
-
-instance Arbitrary a => Arbitrary (StrangeList a) where
-  arbitrary = StrangeList <$> strangeList arbitrary
-  shrink (StrangeList as) = StrangeList <$> shrink as
-
-newtype StrangeDiff a = StrangeDiff [Diff [a]]
-  deriving Show
-
-pattern DiffList :: [a] -> [a] -> StrangeDiff a
-pattern DiffList xs ys <- StrangeDiff (extractDiff -> (xs, ys))
-
-instance Arbitrary a => Arbitrary (StrangeDiff a) where
-  arbitrary = coerce (arbitrary :: Gen [Diff (StrangeList a)])
-  shrink (StrangeDiff ds) = StrangeDiff <$> shrink ds
