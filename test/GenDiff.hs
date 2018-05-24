@@ -7,6 +7,7 @@ module GenDiff where
 
 import Control.Monad (replicateM)
 import Data.Bifunctor (bimap)
+import Data.String (fromString)
 
 import Data.Algorithm.Diff
   ( Diff(..), getGroupedDiff )
@@ -40,3 +41,9 @@ splGps = do
     let DiffGroups gs = contextDiff 3 (getGroupedDiff (xs :: [Int]) ys)
     in return (length gs)
   return (sum xs)
+
+printRandomDiff :: IO ()
+printRandomDiff = do
+  DiffList xs ys <- generate arbitrary
+  let f = fmap (fromString . show)
+  printGroupedDiff 3 "This" "That" (getGroupedDiff (f xs) (f (ys :: [Int])))
